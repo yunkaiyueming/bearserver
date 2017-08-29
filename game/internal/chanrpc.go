@@ -4,6 +4,7 @@ import (
 	"github.com/name5566/leaf/gate"
 	"fmt"
 	"bearserver/msg"
+	"github.com/name5566/leaf/log"
 )
 
 func init() {//与gate 进行"交流"
@@ -49,6 +50,8 @@ func rpcRigesterAgent(args []interface{})  {
 	a := args[0].(gate.Agent)
 	m := args[1].(*msg.RegisterUserInfo)
 	err := checkExitedUser(m.Name)
+	log.Debug("hello %v",m.Name)
+
 	if err == nil {
 		a.WriteMsg(&msg.CodeState{MSG_STATE:msg.MSG_Register_Existed})
 		return

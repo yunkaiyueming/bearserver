@@ -63,8 +63,6 @@ type LoginError struct {
 type RegisterUserInfo struct {//注册
 	Name string
 	Pwd string
-	Age int
-	Email string
 }
 
 type RoomInfo struct {

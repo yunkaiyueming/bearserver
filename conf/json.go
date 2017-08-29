@@ -2,7 +2,6 @@ package conf
 
 import (
 	"io/ioutil"
-	//"leaf/log"
 	"encoding/json"
 	"github.com/name5566/leaf/log"
 )
@@ -17,8 +16,7 @@ var Server struct {
 	MaxConnNum  int
 	ConsolePort int
 	ProfilePath string
-	DBMaxConnNum int
-	DBUrl        string
+	DBUrl       string
 }
 
 func init() {

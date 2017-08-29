@@ -17,7 +17,8 @@ function ok_button(){
 	var ws = new WebSocket('ws://127.0.0.1:3653')
 
 	ws.onopen = function(){
-		ws.send(JSON.stringify({Hello:{Name:'leaf'}}))
+		// ws.send(JSON.stringify({Hello:{Name:'world'}}))
+		ws.send(JSON.stringify({RegisterUserInfo:{Name:'sq4',Pwd:'123'}}))
 	}
 
 	ws.onmessage = function(evt){

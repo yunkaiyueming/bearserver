@@ -21,4 +21,10 @@ var (
 	TimerDispatcherLen = 10000
 	AsynCallLen        = 10000
 	ChanRPCLen         = 10000
+
+	//database
+	hostname = "192.168.8.81:3307"
+	username = "root"
+	password = ""
+	database = "bear"
 )
