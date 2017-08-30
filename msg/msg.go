@@ -45,14 +45,11 @@ type RegisterUserInfo struct { //注册
 }
 
 type RoomInfo struct {
-	RoomName   string
-	Volume     int
-	GameType   int    //游戏类型 即玩法
-	PayValue   int    //倍数
-	BaseMoney  int    //最低资本 才能进房间
-	RoomPwd    string //房间锁--密码
-	RoomID     int
-	RoomNumber string
+	RoomID   int
+	RoomName string
+	State    int   //房间状态
+	UserNum  int   //玩家数目
+	UserIds  []int //玩家IDs
 }
 
 type JoinRoomInfo struct {

@@ -1,68 +1,70 @@
 package internal
 
 import (
-	"github.com/name5566/leaf/gate"
-	"fmt"
 	"bearserver/msg"
+	"fmt"
+
+	"github.com/name5566/leaf/gate"
 	"github.com/name5566/leaf/log"
 )
 
-func init() {//与gate 进行"交流"
+func init() { //与gate 进行"交流"
 	skeleton.RegisterChanRPC("NewAgent", rpcNewAgent)
 	skeleton.RegisterChanRPC("CloseAgent", rpcCloseAgent)
 	skeleton.RegisterChanRPC("LoginAgent", rpcLoginAgent)
-	skeleton.RegisterChanRPC("RegisterAgent",rpcRigesterAgent)
+	skeleton.RegisterChanRPC("RegisterAgent", rpcRigesterAgent)
 }
 
 func rpcNewAgent(args []interface{}) {
-	fmt.Println("--rpcNew--",args)
+	fmt.Println("--rpcNew--", args)
 	a := args[0].(gate.Agent)
-	fmt.Println("args[0]:",a)
-	fmt.Println("len():",len(args))
-	for i := 0; i < len(args); i++{
-		//fmt.Fprintln("i=%d,arg[%d]=%v",i,i,args[i])
-		fmt.Printf("i=%d,arg[%d]=%v \n",i,i,args[i] )
+	fmt.Println("args[0]:", a)
+	fmt.Println("len():", len(args))
+	for i := 0; i < len(args); i++ {
+		fmt.Printf("i=%d,arg[%d]=%v \n", i, i, args[i])
 	}
 
-	_ = a
+	RegNewConn(a, 0)
 }
 
 func rpcCloseAgent(args []interface{}) {
 	a := args[0].(gate.Agent)
-	_ = a
+	LeaveConn(a)
 }
 
-func rpcLoginAgent(args []interface{})  {
-	fmt.Println("-rpclon-:",args)
+func rpcLoginAgent(args []interface{}) {
+	fmt.Println("-rpclon-:", args)
+
 	a := args[0].(gate.Agent)
-	fmt.Println("get m--:",a)
-	fmt.Println("len--:",len(args))
 	m := args[1].(*msg.UserLoginInfo)
-	err := login(m)
-	if err != nil{
-		a.WriteMsg(&msg.CodeState{MSG_STATE:msg.MSG_DB_Error})
+	uid, err := login(m)
+	if err != nil {
+		a.WriteMsg(&msg.CodeState{MSG_STATE: msg.MSG_Login_Error})
 		return
 	}
+	RegNewConn(a, uid)
+	a.WriteMsg(&msg.CodeState{MSG_STATE: msg.MSG_Login_OK})
 }
 
-func rpcRigesterAgent(args []interface{})  {
+func rpcRigesterAgent(args []interface{}) {
 	fmt.Println("resiter---")
 	a := args[0].(gate.Agent)
 	m := args[1].(*msg.RegisterUserInfo)
-	err := checkExitedUser(m.Name)
-	log.Debug("hello %v",m.Name)
+	ok := checkExitedUser(m.Name)
+	log.Debug("hello %v", m.Name)
 
-	if err == nil {
-		a.WriteMsg(&msg.CodeState{MSG_STATE:msg.MSG_Register_Existed})
+	if !ok {
+		a.WriteMsg(&msg.CodeState{MSG_STATE: msg.MSG_Register_Existed})
 		return
 	}
-	err = register(m)
-	if err != nil{
-		a.WriteMsg(&msg.CodeState{MSG_STATE:msg.MSG_DB_Error})
+
+	_, err := register(m)
+	if err != nil {
+		a.WriteMsg(&msg.CodeState{MSG_STATE: msg.MSG_DB_Error})
 		return
 	}
 }
 
-func rpcJoinRoomAgent(args []interface{})  {
+func rpcJoinRoomAgent(args []interface{}) {
 
 }

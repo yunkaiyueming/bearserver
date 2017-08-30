@@ -16,5 +16,4 @@ const (
 	MSG_ROOM_NOMONEY    = 1004 //起始资金不够
 	MSG_ROOM_NOTEMPTY   = 1005 //房子不空
 	MSG_ROOM_NOROOM     = 1006 //没有该房子记录
-
 )
