@@ -6,19 +6,19 @@
 </head>
 
 <body>
-	<input  type="submit" >
-	<button onclick="ok_button()">ok</button>
+	<input type="text" id='send_msg' name='msg' style='width:"60%" height:"60%"'>
+	<button onclick="ok_button()">send</button>
 	<p>return : <output id="result"></output></p>
 
 
 
 <script type="text/javascript">
 function ok_button(){
+	var msg = document.getElementById("send_msg").value
 	var ws = new WebSocket('ws://127.0.0.1:3653')
 
 	ws.onopen = function(){
-		// ws.send(JSON.stringify({Hello:{Name:'world'}}))
-		ws.send(JSON.stringify({RegisterUserInfo:{Name:'sq4',Pwd:'123'}}))
+		ws.send(msg)
 	}
 
 	ws.onmessage = function(evt){
