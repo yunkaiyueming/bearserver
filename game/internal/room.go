@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"fmt"
+	//"fmt"
 
 	"bearserver/msg"
 )
@@ -36,6 +36,7 @@ func createRoom(uid int, roomName string, roomPwd string) (bool, string) {
 		RoomPwd:  roomPwd,
 	}
 	OnlineRooms = append(OnlineRooms, room)
+	return false,"11"
 }
 
 func getRooms() {

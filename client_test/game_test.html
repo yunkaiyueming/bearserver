@@ -16,6 +16,7 @@
 function ok_button(){
 	var msg = document.getElementById("send_msg").value
 	var ws = new WebSocket('ws://127.0.0.1:3653')
+	document.getElementById("result").innerHTML = " ";
 
 	ws.onopen = function(){
 		ws.send(msg)
