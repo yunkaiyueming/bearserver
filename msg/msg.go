@@ -16,8 +16,8 @@ func init() {
 	Processor.Register(&CodeState{})
 
 	//房间会话注册
-	Processor.Register(&RoomInfo{})     //基本信息
-	Processor.Register(&JoinRoomInfo{}) //用户输入密码 点击进入
+	Processor.Register(&Room{})        //基本信息
+	Processor.Register(&RoomOperate{}) //用户输入密码 点击进入
 }
 
 type CodeState struct {
@@ -44,17 +44,19 @@ type RegisterUserInfo struct { //注册
 	Pwd  string
 }
 
-type RoomInfo struct {
+type Room struct {
 	RoomID   int
 	RoomName string
-	State    int   //房间状态
-	UserNum  int   //玩家数目
-	UserIds  []int //玩家IDs
+	State    int    //房间状态
+	UserNum  int    //玩家数目
+	UserIds  []int  //玩家IDs
+	RoomPwd  string //房间密码
 }
 
-type JoinRoomInfo struct {
+type RoomOperate struct {
 	RoomNumber string
 	RoomPwd    string
+	Type       int
 }
 
 type RoomPWDJoinCondition struct {
