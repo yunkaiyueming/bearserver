@@ -1,0 +1,7 @@
+{
+	"-1" : "syntax error",
+    "-2" : "params error",
+    "-3": "condition not enough",
+    "-4" : "time error",
+    "-5" : "unknow error",
+}
