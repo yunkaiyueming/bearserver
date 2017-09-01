@@ -5,6 +5,7 @@ import (
 	"bearserver/msg"
 
 	"github.com/name5566/leaf/gate"
+	"fmt"
 )
 
 func init() {
@@ -29,6 +30,9 @@ func handleDispatch(args []interface{}){
 		default:
 			response.Cmd = method
 	}
+
+	fmt.Println("++++++++")
+	fmt.Println(ConnMap)
 
 	a.WriteMsg(response)
 }
