@@ -50,7 +50,9 @@ var Server struct {
 }
 
 func init() {
-
+	initServerCf()
+	initCardCf()
+	initCodeCf()
 }
 
 func initServerCf() {
