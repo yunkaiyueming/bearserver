@@ -9,6 +9,10 @@ var ConnMap = make(map[gate.Agent]int)
 
 func RegNewConn(a gate.Agent, uid int) {
 	ConnMap[a] = uid
+	//fmt.Println("v%\n",ConnMap)
+	for k, v := range ConnMap {
+		fmt.Println(k, v)
+	}
 }
 
 func LeaveConn(a gate.Agent) {

@@ -37,11 +37,16 @@ func rpcLoginAgent(args []interface{}) {
 
 	a := args[0].(gate.Agent)
 	m := args[1].(*msg.UserLoginInfo)
+	fmt.Println("=======")
+	fmt.Println(m)
 	uid, err := login(m)
+	fmt.Println(uid)
 	if err != nil {
 		a.WriteMsg(&msg.CodeState{MSG_STATE: msg.MSG_Login_Error})
 		return
 	}
+	//登录成功之后就开始加入房间
+	joinRoom(uid)
 	RegNewConn(a, uid)
 	a.WriteMsg(&msg.CodeState{MSG_STATE: msg.MSG_Login_OK})
 }
