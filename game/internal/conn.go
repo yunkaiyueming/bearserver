@@ -7,6 +7,14 @@ import (
 
 var ConnMap = make(map[gate.Agent]int)
 
+func init() {
+
+}
+
+func beatHeart() {
+
+}
+
 func RegNewConn(a gate.Agent, uid int) {
 	ConnMap[a] = uid
 	//fmt.Println("v%\n",ConnMap)

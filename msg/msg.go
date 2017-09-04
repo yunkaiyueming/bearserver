@@ -17,28 +17,24 @@ func init() {
 	Processor.Register(&RegisterUserInfo{})
 
 	Processor.Register(&CodeState{})
-
-	//房间会话注册
-	Processor.Register(&Room{})        //基本信息
-	Processor.Register(&RoomOperate{}) //用户输入密码 点击进入
 }
 
 //客户端发送请求格式
 type Dispatch struct {
-	Uid int "uid"
-	Cmd string "cmd"
+	Uid    int         "uid"
+	Cmd    string      "cmd"
 	Params interface{} "params"
-	Rnum int "rnum"
-	Ts int "ts"
+	Rnum   int         "rnum"
+	Ts     int         "ts"
 }
 
 //服务端返回数据格式
 type Response struct {
-	Uid int "uid"
-	Cmd string "cmd"
-	Ret int "ret"
+	Uid  int         "uid"
+	Cmd  string      "cmd"
+	Ret  int         "ret"
 	Data interface{} "data"
-	Rnum int "rnum"
+	Rnum int         "rnum"
 }
 
 type CodeState struct {
@@ -59,15 +55,6 @@ type LoginError struct {
 type RegisterUserInfo struct { //注册
 	Name string
 	Pwd  string
-}
-
-type Room struct {
-	RoomID   int
-	RoomName string
-	State    int    //房间状态
-	UserNum  int    //玩家数目
-	UserIds  []int  //玩家IDs
-	RoomPwd  string //房间密码
 }
 
 type RoomOperate struct {
