@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 
-	"bearserver/msg"
+	//"bearserver/msg"
 
-	"github.com/name5566/leaf/gate"
+	//"github.com/name5566/leaf/gate"
 	"bearserver/gamedata/db"
 	"github.com/name5566/leaf/log"
 )
@@ -19,6 +19,7 @@ type Room struct {
 	UserIds   []int               //玩家IDs
 	RoomPwd   string              //房间密码
 	UserState map[int]PlayerState //玩家信息
+	Center    Card 				//房间中间那张牌
 	RecvCh    chan map[string]interface{}
 }
 
@@ -32,7 +33,7 @@ type PlayerState struct {
 }
 
 const (
-	OneRoomPlayerNum = 4
+	OneRoomPlayerNum = 3
 
 	READY    = 0
 	PLAYING  = 1
@@ -94,17 +95,17 @@ func (r *RoomModule) JoinRoom(uid int) (interface{}, error) {
 	uInfo,_ := userModel.GetUserById(uid)
 
 	lastRoom.UserState[uid] = PlayerState{Uid: uid, Status: 0,Name:uInfo.Name}
-//fmt.Println(lastRoom)
-	roomInfo,_ := r.getRoomInfo(uid,lastRoom.RoomID)
 
+	//检查是否可以开始游戏
+
+	r.Start(&lastRoom)
+	roomInfo,_ := r.getRoomInfo(uid,lastRoom.RoomID)
 	//给房间里面的其他人推送信息
 	for k,_ := range lastRoom.UserState{
 		if k != uid {
 			perroomInfo,_ := r.getRoomInfo(k,lastRoom.RoomID)
 			PushMsgModuel := PushMsgModuel{}
 			log.Debug("push...",k,perroomInfo)
-			fmt.Println("%+v\n",perroomInfo)
-
 			PushMsgModuel.pushMsgByUid(k,perroomInfo)
 		}
 	}
@@ -117,22 +118,23 @@ func (r *RoomModule) getRoomInfo(uid int,roomId int) (interface{}, error) {
 		P1 struct{
 			Uid int
 			Name string
-			cardNum int
+			CardNum int
 		}
 		P2 struct{
 			Uid int
 			Name string
-			cardNum int
+			CardNum int
 		}
 		P3 struct{
 			Uid int
 			Name string
+			CardNum int
 		}
 	}
 
 	type Roominfo struct{
 		Player Players
-		Center int
+		Center Card
 		MyCards []Card
 		MathcFlag bool
 		Turn int
@@ -150,12 +152,15 @@ func (r *RoomModule) getRoomInfo(uid int,roomId int) (interface{}, error) {
 		if index == 1{
 			players.P1.Uid = v.Uid
 			players.P1.Name = v.Name
+			players.P1.CardNum = len(v.Cards)
 		}else if index == 2{
 			players.P2.Uid = v.Uid
 			players.P2.Name = v.Name
+			players.P2.CardNum = len(v.Cards)
 		}else if index == 3{
 			players.P3.Uid = v.Uid
 			players.P3.Name = v.Name
+			players.P3.CardNum = len(v.Cards)
 		}
 		if v.Uid == uid{
 			myPos = index
@@ -164,10 +169,13 @@ func (r *RoomModule) getRoomInfo(uid int,roomId int) (interface{}, error) {
 		index++
 	}
 
-
+	if room.State == PLAYING{
+		resRoom.Center = room.Center
+		resRoom.MathcFlag = true
+	}else {
+		resRoom.MathcFlag = false
+	}
 	resRoom.Player = players
-	resRoom.Center = 0
-	resRoom.MathcFlag = false
 	resRoom.MyPos = myPos
 
 	return  resRoom,nil
@@ -176,30 +184,27 @@ func (r *RoomModule) getRoomInfo(uid int,roomId int) (interface{}, error) {
 
 }
 
-func (r *RoomModule) Start(args []interface{}) {
-	m := args[0].(*msg.Dispatch)
-	a := args[1].(gate.Agent)
-
+func (r *RoomModule) Start(room *Room) {
 	playerModuel := PlayerModuel{}
-	params := m.Params.(map[string]interface{})
-	roomId := params["room_id"].(int)
-	if m.Cmd == "room.start" {
-		//检查房间
-		room, err := r.GetRoom(roomId)
-		if err != nil {
-			a.WriteMsg(err.Error())
-			return
-		}
-
-		//检查人数
-		if room.UserNum != OneRoomPlayerNum {
-			a.WriteMsg(fmt.Sprintf("房间人数不足，不能开局"))
-			return
-		}
-
-		//开局
-		go playerModuel.start(&room, a)
+	log.Debug("start...111")
+	//params := m.Params.(map[string]interface{})
+	//检查房间
+	//room, err := r.GetRoom(roomId)
+	//if err != nil {
+	//	return
+	//}
+	//检查人数
+	log.Debug("UserNum...",room.UserNum )
+	if room.UserNum != OneRoomPlayerNum {
+		return
 	}
+	log.Debug("start...222")
+	//开局
+	go playerModuel.start(room)
 
-	go playerModuel.RecvRoomMsg(a, roomId, params)
+
+
+
+
+	//go playerModuel.RecvRoomMsg(a, roomId, params)
 }

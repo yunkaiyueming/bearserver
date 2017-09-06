@@ -30,7 +30,7 @@ func (p *PlayerModuel) initPlayerCards() []Card {
 }
 
 //发牌
-func (p *PlayerModuel) sendCard(room *Room, sortCards []Card, a gate.Agent) {
+func (p *PlayerModuel) sendCard(room *Room, sortCards []Card) {
 	newSortCards := make([]Card, 0)
 	var end int
 
@@ -50,14 +50,18 @@ func (p *PlayerModuel) sendCard(room *Room, sortCards []Card, a gate.Agent) {
 }
 
 //游戏开始
-func (p *PlayerModuel) start(room *Room, a gate.Agent) {
+func (p *PlayerModuel) start(room *Room) {
 	(*room).State = PLAYING
+	//初始化牌
 	sortCards := p.initPlayerCards()
-	p.sendCard(room, sortCards, a)
+	//给每个人发牌
+	p.sendCard(room, sortCards)
 
 	//翻出第一张牌
 	preCardS := lib.DelSlice(sortCards, 0, 1)
 	preCard := preCardS[0].(Card)
+	room.Center = preCard
+
 	fmt.Println("first card", preCard)
 
 	stopFlag := false
@@ -96,7 +100,7 @@ func (p *PlayerModuel) start(room *Room, a gate.Agent) {
 		}
 	}
 
-	a.WriteMsg(winerUids)
+	//a.WriteMsg(winerUids)
 }
 
 func (p *PlayerModuel) PlayerSelTime(room *Room, retCh chan interface{}) {
