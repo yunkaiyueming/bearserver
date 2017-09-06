@@ -7,6 +7,8 @@ import (
 	"bearserver/msg"
 
 	"github.com/name5566/leaf/gate"
+	"bearserver/gamedata/db"
+	"github.com/name5566/leaf/log"
 )
 
 type Room struct {
@@ -23,8 +25,9 @@ type Room struct {
 type RoomModule struct{}
 
 type PlayerState struct {
-	Uid    int
-	Cards  []Card
+	Uid int
+	Cards []Card
+	Name string
 	Status int //玩家状态：0进入房间， 1开始， 2有出牌权，3没有出牌权，4赢了，5输了
 }
 
@@ -65,16 +68,20 @@ func (r *RoomModule) GetRoom(roomId int) (Room, error) {
 }
 
 func (r *RoomModule) IsNeedCreateRoom() bool {
-	lastRoom := OnlineRooms[len(OnlineRooms)-1]
-	if lastRoom.UserNum < OneRoomPlayerNum {
-		return false
+	if len(OnlineRooms) == 0{
+		return true
+	}else {
+		lastRoom := OnlineRooms[len(OnlineRooms)-1]
+		if lastRoom.UserNum < OneRoomPlayerNum{
+			return false
+		}
 	}
 	return true
 }
 
-func (r *RoomModule) JoinRoom(uid int) (Room, error) {
+func (r *RoomModule) JoinRoom(uid int) (interface{}, error) {
 	if r.IsNeedCreateRoom() {
-		return r.createRoom(uid)
+		r.createRoom(uid)
 	}
 	lastRoom := OnlineRooms[len(OnlineRooms)-1]
 	lastRoom.UserIds = append(lastRoom.UserIds, uid)
@@ -82,9 +89,91 @@ func (r *RoomModule) JoinRoom(uid int) (Room, error) {
 	if lastRoom.UserState == nil {
 		lastRoom.UserState = make(map[int]PlayerState)
 	}
-	lastRoom.UserState[uid] = PlayerState{Uid: uid, Status: 0}
 
-	return lastRoom, nil
+	userModel := db.ModelUser{}
+	uInfo,_ := userModel.GetUserById(uid)
+
+	lastRoom.UserState[uid] = PlayerState{Uid: uid, Status: 0,Name:uInfo.Name}
+//fmt.Println(lastRoom)
+	roomInfo,_ := r.getRoomInfo(uid,lastRoom.RoomID)
+
+	//给房间里面的其他人推送信息
+	for k,_ := range lastRoom.UserState{
+		if k != uid {
+			perroomInfo,_ := r.getRoomInfo(k,lastRoom.RoomID)
+			PushMsgModuel := PushMsgModuel{}
+			log.Debug("push...",k,perroomInfo)
+			fmt.Println("%+v\n",perroomInfo)
+
+			PushMsgModuel.pushMsgByUid(k,perroomInfo)
+		}
+	}
+	return roomInfo, nil
+}
+
+//给client返回房间信息
+func (r *RoomModule) getRoomInfo(uid int,roomId int) (interface{}, error) {
+	type Players struct {
+		P1 struct{
+			Uid int
+			Name string
+			cardNum int
+		}
+		P2 struct{
+			Uid int
+			Name string
+			cardNum int
+		}
+		P3 struct{
+			Uid int
+			Name string
+		}
+	}
+
+	type Roominfo struct{
+		Player Players
+		Center int
+		MyCards []Card
+		MathcFlag bool
+		Turn int
+		TurnTime int
+		MyPos int
+	}
+	//
+	room,_ := r.GetRoom(roomId)
+	players := Players{}
+	//
+	index := 1
+	myPos := 1
+	resRoom := Roominfo{}
+	for _,v := range room.UserState{
+		if index == 1{
+			players.P1.Uid = v.Uid
+			players.P1.Name = v.Name
+		}else if index == 2{
+			players.P2.Uid = v.Uid
+			players.P2.Name = v.Name
+		}else if index == 3{
+			players.P3.Uid = v.Uid
+			players.P3.Name = v.Name
+		}
+		if v.Uid == uid{
+			myPos = index
+			resRoom.MyCards = v.Cards
+		}
+		index++
+	}
+
+
+	resRoom.Player = players
+	resRoom.Center = 0
+	resRoom.MathcFlag = false
+	resRoom.MyPos = myPos
+
+	return  resRoom,nil
+
+
+
 }
 
 func (r *RoomModule) Start(args []interface{}) {

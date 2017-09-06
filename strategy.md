@@ -38,6 +38,12 @@
 这是个例子，游戏逻辑必须用dispatch
 {"Dispatch":{"params":"haha","cmd":"hello","rnum":6,"ts":1499945446}}
 这个是返回
-{"Response":{"Uid":0,"Cmd":"hello","Ret":0,"Data":{"ID":1,"Name":"Reds"},"Rnum":6}}
+{"Response":{"Uid":0,"Cmd":"hello",Ret":0,"Data":{"ID":1,"Name":"Reds"},"Rnum":6}}
+
+=== 接口定义 ===
+登录接口:
+{"UserLoginInfo":{"params":{},"cmd":"login","name":"sq","rnum":6,"ts":1499945446}}
+根据uid推送固定的消息:
+{"Dispatch":{"params":{"msg":"hehe"},"uid":1,"cmd":"pushMsg","rnum":6,"ts":1499945446}}
 
 

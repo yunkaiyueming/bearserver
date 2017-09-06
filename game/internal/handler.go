@@ -28,6 +28,10 @@ func handleDispatch(args []interface{}) {
 		response = handleHello(args)
 	case "start":
 
+	case "pushMsg":
+		//response = handlePushMsg(args)
+
+
 	default:
 		response.Cmd = method
 	}

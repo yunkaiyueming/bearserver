@@ -45,10 +45,13 @@ func rpcLoginAgent(args []interface{}) {
 		a.WriteMsg(&msg.CodeState{MSG_STATE: msg.MSG_Login_Error})
 		return
 	}
-	//登录成功之后就开始加入房间
-	joinRoom(uid)
+
 	RegNewConn(a, uid)
-	a.WriteMsg(&msg.CodeState{MSG_STATE: msg.MSG_Login_OK})
+
+	//登录成功之后就开始加入房间
+	roomModuel := &RoomModule{}
+	room,_ := roomModuel.JoinRoom(uid)
+	a.WriteMsg(&msg.Response{Uid:uid,Cmd:"login",Ret:0,Data:room,Rnum:1})
 }
 
 func rpcRigesterAgent(args []interface{}) {

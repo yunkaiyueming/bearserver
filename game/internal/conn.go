@@ -24,6 +24,5 @@ func RegNewConn(a gate.Agent, uid int) {
 }
 
 func LeaveConn(a gate.Agent) {
-	fmt.Println("laozi zou le ")
 	delete(ConnMap, a)
 }

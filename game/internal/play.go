@@ -40,6 +40,8 @@ func (p *PlayerModuel) sendCard(room *Room, sortCards []Card, a gate.Agent) {
 		onePlayerCards := sortCards[startPos:end]
 
 		room.UserState[uid] = PlayerState{Uid: uid, Cards: onePlayerCards, Status: 0}
+
+
 	}
 	//retCh
 	copy(newSortCards, sortCards)
