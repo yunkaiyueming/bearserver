@@ -5,9 +5,10 @@ import (
 	"time"
 
 	"bearserver/conf"
-	"bearserver/lib"
+	//"bearserver/lib"
 
 	"github.com/name5566/leaf/gate"
+	"github.com/name5566/leaf/log"
 )
 
 type PlayerModuel struct{}
@@ -15,38 +16,37 @@ type PlayerModuel struct{}
 var MaxBaseCardNum = len(conf.BaseCards)
 
 //洗牌
-func (p *PlayerModuel) initPlayerCards() []Card {
+func (p *PlayerModuel) initPlayerCards() []int {
 	roomCards := conf.BaseCards
 
-	sortCards := make([]Card, 0)
-	for cardId, cardInfo := range roomCards {
-		color := cardInfo["color"]
-		pic := cardInfo["pic"]
-
-		card := Card{cardId, color, pic}
-		sortCards = append(sortCards, card)
+	sortCards := make([]int, 0)
+	for cardId,_ := range roomCards {
+		sortCards = append(sortCards, int(cardId))
 	}
 	return sortCards
 }
 
 //发牌
-func (p *PlayerModuel) sendCard(room *Room, sortCards []Card) {
-	newSortCards := make([]Card, 0)
-	var end int
+func (p *PlayerModuel) sendCard(room *Room, sortCards []int) {
+	//newSortCards := make([]Card, 0)
+	//var end int
 
-	for i, uid := range room.UserIds {
-		startPos := i * OneRoomPlayerNum
-		end = (i + 1) * OneRoomPlayerNum
-		onePlayerCards := sortCards[startPos:end]
+	log.Debug("sendCard...",room)
+	log.Debug("sortCards...",sortCards)
+	room.Cards = sortCards
 
-		room.UserState[uid] = PlayerState{Uid: uid, Cards: onePlayerCards, Status: 0}
-
-
+	for _, uid := range room.UserIds {
+		onePlayerCards := room.Cards[0:5]
+		tmpCards := room.Cards[5:]
+		room.Cards = tmpCards
+		//room.UserState[uid].Cards = onePlayerCards
+		room.UserState[uid] = PlayerState{Uid: uid, Cards: onePlayerCards, Name:room.UserState[uid].Name,Status: 0}
 	}
+
 	//retCh
-	copy(newSortCards, sortCards)
-	sortCards = nil
-	copy(sortCards, newSortCards[end:len(newSortCards)])
+	//copy(newSortCards, sortCards)
+	//sortCards = nil
+	//copy(sortCards, newSortCards[end:len(newSortCards)])
 }
 
 //游戏开始
@@ -58,47 +58,55 @@ func (p *PlayerModuel) start(room *Room) {
 	p.sendCard(room, sortCards)
 
 	//翻出第一张牌
-	preCardS := lib.DelSlice(sortCards, 0, 1)
-	preCard := preCardS[0].(Card)
-	room.Center = preCard
+	//preCardS := lib.DelSlice(sortCards, 0, 1)
+	//preCard := preCardS[0].(Card)
+	//tmpPre := room.Cards[0:1]
 
-	fmt.Println("first card", preCard)
+	//firstCard := tmpPre
 
-	stopFlag := false
-	winerUids := make([]int, 0)
+	room.Center = room.Cards[0]
+	room.Turn = 1
+	room.TurnTime = time.Now().Unix()
 
-	for {
-		if stopFlag {
-			break
-		}
+	log.Debug("resroom...",room)
 
-		for _, uid := range room.UserIds {
-			//牌出完，清算结局
-			if len(sortCards) == 0 {
-				winerUids = p.CalculateEnd(room)
-				fmt.Println("winer uids==>", winerUids)
-				stopFlag = true
-				break
-			}
+	//fmt.Println("first card", preCard)
+	//
+	//stopFlag := false
+	//winerUids := make([]int, 0)
 
-			if len(room.UserState[uid].Cards) == 0 {
-				winerUids := []int{uid}
-				fmt.Println("winer uids==>", winerUids)
-				stopFlag = true
-				break
-			}
-
-			overCh := make(chan interface{})
-			go p.PlayerSelTime(room, overCh)
-			overRet := <-overCh
-			if overRet == true {
-				//自动出牌
-				p.AutoSelCard()
-			}
-			//解析牌，检测规则，更新玩家状态
-			//room.UserState[uid].Cards
-		}
-	}
+	//for {
+	//	if stopFlag {
+	//		break
+	//	}
+	//
+	//	for _, uid := range room.UserIds {
+	//		//牌出完，清算结局
+	//		if len(sortCards) == 0 {
+	//			winerUids = p.CalculateEnd(room)
+	//			fmt.Println("winer uids==>", winerUids)
+	//			stopFlag = true
+	//			break
+	//		}
+	//
+	//		if len(room.UserState[uid].Cards) == 0 {
+	//			winerUids := []int{uid}
+	//			fmt.Println("winer uids==>", winerUids)
+	//			stopFlag = true
+	//			break
+	//		}
+	//
+	//		overCh := make(chan interface{})
+	//		go p.PlayerSelTime(room, overCh)
+	//		overRet := <-overCh
+	//		if overRet == true {
+	//			//自动出牌
+	//			p.AutoSelCard()
+	//		}
+	//		//解析牌，检测规则，更新玩家状态
+	//		//room.UserState[uid].Cards
+	//	}
+	//}
 
 	//a.WriteMsg(winerUids)
 }
