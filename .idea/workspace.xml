@@ -2,15 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="faaf9973-2f5f-4d6a-be3a-d7b54c10a7dc" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/game/internal/playcard.go" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/game/internal/chanrpc.go" afterPath="$PROJECT_DIR$/game/internal/chanrpc.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/game/internal/handler.go" afterPath="$PROJECT_DIR$/game/internal/handler.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/game/internal/play.go" afterPath="$PROJECT_DIR$/game/internal/play.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/game/internal/room.go" afterPath="$PROJECT_DIR$/game/internal/room.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gamedata/db/model_user.go" afterPath="$PROJECT_DIR$/gamedata/db/model_user.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/msg/msg.go" afterPath="$PROJECT_DIR$/msg/msg.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/strategy.md" afterPath="$PROJECT_DIR$/strategy.md" />
     </list>
     <ignored path="$PROJECT_DIR$/.idea/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
