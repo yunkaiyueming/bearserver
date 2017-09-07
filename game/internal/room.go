@@ -46,6 +46,20 @@ const (
 var RoomCounter int
 var OnlineRooms = make([]Room, 0)
 
+func (r *RoomModule) getRoomByUid(uid int) (Room, bool) {
+	for _, room := range OnlineRooms {
+		if len(room.UserIds) >0{
+			for _,v := range room.UserIds{
+				if uid == v{
+					return room,true
+				}
+			}
+		}
+
+	}
+	return Room{},false
+}
+
 func (r *RoomModule) createRoom(uid int) (Room, error) {
 	RoomCounter++
 
@@ -115,6 +129,19 @@ func (r *RoomModule) JoinRoom(uid int) (interface{}, error) {
 	return roomInfo, nil
 }
 
+//给房间里面的其他人推送信息
+func (r *RoomModule) pushRoomMsgToOthers(uid int,room *Room)  {
+	//给房间里面的其他人推送信息
+	for k, _ := range room.UserState {
+		if k != uid {
+			perroomInfo, _ := r.getRoomInfo(k, room.RoomID)
+			PushMsgModuel := PushMsgModuel{}
+			log.Debug("push...", k, perroomInfo)
+			PushMsgModuel.pushMsgByUid(k, perroomInfo)
+		}
+	}
+}
+
 //给client返回房间信息
 func (r *RoomModule) getRoomInfo(uid int, roomId int) (interface{}, error) {
 	type Players struct {
@@ -175,11 +202,11 @@ func (r *RoomModule) getRoomInfo(uid int, roomId int) (interface{}, error) {
 	}
 
 	if room.State == PLAYING {
-		resRoom.Center = room.Center
 		resRoom.MathcFlag = true
 	} else {
 		resRoom.MathcFlag = false
 	}
+	resRoom.Center = room.Center
 	resRoom.Player = players
 	resRoom.MyPos = myPos
 	resRoom.Turn = room.Turn

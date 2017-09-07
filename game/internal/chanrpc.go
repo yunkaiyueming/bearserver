@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/name5566/leaf/gate"
-	"github.com/name5566/leaf/log"
+	//"github.com/name5566/leaf/log"
 )
 
 func init() { //与gate 进行"交流"
@@ -59,20 +59,17 @@ func rpcRigesterAgent(args []interface{}) {
 	a := args[0].(gate.Agent)
 	m := args[1].(*msg.RegisterUserInfo)
 	ok := checkExitedUser(m.Name)
-	log.Debug("hello %v", m.Name)
-
-	if !ok {
-		a.WriteMsg(&msg.CodeState{MSG_STATE: msg.MSG_Register_Existed})
+	if ok {
+		response := &msg.Response{Cmd:"rigester",Rnum:1,Ret:-1}
+		a.WriteMsg(response)
 		return
 	}
 
 	_, err := register(m)
-	if err != nil {
-		a.WriteMsg(&msg.CodeState{MSG_STATE: msg.MSG_DB_Error})
+	if err == nil {
+		response := &msg.Response{Cmd:"rigester",Rnum:1,Ret:0}
+		a.WriteMsg(response)
 		return
 	}
 }
 
-func rpcJoinRoomAgent(args []interface{}) {
-
-}

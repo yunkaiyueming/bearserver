@@ -26,7 +26,8 @@ func handleDispatch(args []interface{}) {
 	switch method {
 	case "hello":
 		response = handleHello(args)
-	case "start":
+	case "playCard":
+		response = handlePlayCard(args)
 
 	case "pushMsg":
 		//response = handlePushMsg(args)

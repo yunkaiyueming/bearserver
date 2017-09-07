@@ -3,6 +3,7 @@ package db
 import (
 	"fmt"
 	"time"
+	"github.com/name5566/leaf/log"
 )
 
 const USERINFO_TABLE_NAME = "userinfo"
@@ -48,5 +49,6 @@ func (this *ModelUser) CheckUserExist(name string) bool {
 	var uid int
 	sql := fmt.Sprintf("SELECT id FROM %s WHERE name='%s'", USERINFO_TABLE_NAME, name)
 	getOrm("default").Raw(sql).QueryRow(&uid)
+	log.Debug("uid...",uid)
 	return uid > 0
 }

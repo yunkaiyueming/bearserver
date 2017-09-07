@@ -23,7 +23,7 @@ func init() {
 type Dispatch struct {
 	Uid    int         "uid"
 	Cmd    string      "cmd"
-	Params interface{} "params"
+	Params map[string]interface{} "params"
 	Rnum   int         "rnum"
 	Ts     int         "ts"
 }

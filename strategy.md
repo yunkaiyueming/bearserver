@@ -46,4 +46,12 @@
 根据uid推送固定的消息:
 {"Dispatch":{"params":{"msg":"hehe"},"uid":1,"cmd":"pushMsg","rnum":6,"ts":1499945446}}
 
+注册接口:
+{"RegisterUserInfo":{"name":"xiaocai","pwd":"123"}}
+
+发牌接口:
+{"Dispatch":{"params":{"mtype":1},"uid":1,"cmd":"playCard","rnum":6,"ts":1499945446}}
+
+
+
 
