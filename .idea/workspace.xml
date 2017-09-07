@@ -528,7 +528,8 @@
     <MESSAGE value="11" />
     <MESSAGE value="Merge branch 'master' of https://git.oschina.net/mcmeteor/bearserver&#10;&#10;# Conflicts:&#10;#&#9;.gitignore" />
     <MESSAGE value="修改了前3个人的出牌逻辑" />
-    <option name="LAST_COMMIT_MESSAGE" value="修改了前3个人的出牌逻辑" />
+    <MESSAGE value="增加出牌和摸牌规则" />
+    <option name="LAST_COMMIT_MESSAGE" value="增加出牌和摸牌规则" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
