@@ -50,7 +50,11 @@
 {"RegisterUserInfo":{"name":"xiaocai","pwd":"123"}}
 
 发牌接口:
-{"Dispatch":{"params":{"mtype":1},"uid":1,"cmd":"playCard","rnum":6,"ts":1499945446}}
+发牌：
+{"Dispatch":{"params":{"mtype":"1","card":"401"},"uid":1,"cmd":"playCard","rnum":6,"ts":1499945446}}
+摸牌:
+{"Dispatch":{"params":{"mtype":"2"},"uid":1,"cmd":"playCard","rnum":6,"ts":1499945446}}
+
 
 
 

@@ -4,9 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	//"bearserver/msg"
-
-	//"github.com/name5566/leaf/gate"
 	"bearserver/gamedata/db"
 	"github.com/name5566/leaf/log"
 )
@@ -36,11 +33,10 @@ type PlayerState struct {
 }
 
 const (
-	OneRoomPlayerNum = 3
-
 	READY    = 0
 	PLAYING  = 1
 	GAMEOVER = 2
+	OneRoomPlayerNum = 3
 )
 
 var RoomCounter int
@@ -48,7 +44,7 @@ var OnlineRooms = make([]Room, 0)
 
 func (r *RoomModule) getRoomByUid(uid int) (Room, bool) {
 	for _, room := range OnlineRooms {
-		if len(room.UserIds) >0{
+		if len(room.UserIds) >0 && room.State !=2 {
 			for _,v := range room.UserIds{
 				if uid == v{
 					return room,true
@@ -74,6 +70,19 @@ func (r *RoomModule) createRoom(uid int) (Room, error) {
 	}
 	OnlineRooms = append(OnlineRooms, room)
 	return room, nil
+}
+
+func (r *RoomModule) deleteRoom(roomId int) {
+	var index int
+	for k,v := range OnlineRooms{
+		if v.RoomID == roomId{
+			index = k
+			break
+		}
+
+	}
+
+	OnlineRooms = append(OnlineRooms[:index], OnlineRooms[index+1:]...)
 }
 
 func (r *RoomModule) GetRoom(roomId int) (Room, error) {
@@ -142,6 +151,19 @@ func (r *RoomModule) pushRoomMsgToOthers(uid int,room *Room)  {
 	}
 }
 
+
+func (r *RoomModule) pushSuccessToOthers(winerUid int,room *Room)  {
+	//给房间里面的其他人推送信息
+	for peruid, _ := range room.UserState {
+		successMsg := make(map[string]int)
+		successMsg["winerUid"] = winerUid
+		successMsg["gameOver"] = 1
+		PushMsgModuel := PushMsgModuel{}
+		PushMsgModuel.pushMsgByUid(peruid,successMsg)
+	}
+}
+
+
 //给client返回房间信息
 func (r *RoomModule) getRoomInfo(uid int, roomId int) (interface{}, error) {
 	type Players struct {
@@ -171,7 +193,6 @@ func (r *RoomModule) getRoomInfo(uid int, roomId int) (interface{}, error) {
 		TurnTime  int64
 		MyPos     int
 	}
-	//
 	room, _ := r.GetRoom(roomId)
 
 	log.Debug("roominfo...", room)
@@ -219,12 +240,7 @@ func (r *RoomModule) getRoomInfo(uid int, roomId int) (interface{}, error) {
 func (r *RoomModule) Start(room *Room) {
 	playerModuel := PlayerModuel{}
 	log.Debug("start...111")
-	//params := m.Params.(map[string]interface{})
-	//检查房间
-	//room, err := r.GetRoom(roomId)
-	//if err != nil {
-	//	return
-	//}
+
 	//检查人数
 	log.Debug("UserNum...", room.UserNum)
 	if room.UserNum != OneRoomPlayerNum {
@@ -233,6 +249,8 @@ func (r *RoomModule) Start(room *Room) {
 	log.Debug("start...222")
 	//开局
 	playerModuel.start(room)
+}
 
-	//go playerModuel.RecvRoomMsg(a, roomId, params)
+func (r *RoomModule) RecvRoomMsg(room *Room, params map[string]interface{}) {
+	room.RecvCh <- params
 }

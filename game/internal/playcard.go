@@ -89,12 +89,9 @@ func handlePlayCard(args []interface{}) (*msg.Response) {
 			response.Ret = -5
 			return response
 		}
-		perroomInfo, _ := roomModuel.getRoomInfo(uid, room.RoomID)
-		roomModuel.pushRoomMsgToOthers(uid,&room)
-
-		response.Data = perroomInfo
 	}
-
+	//这个房间收到消息，不会自动发牌
+	roomModuel.RecvRoomMsg(&room,params)
 	perroomInfo, _ := roomModuel.getRoomInfo(uid, room.RoomID)
 	roomModuel.pushRoomMsgToOthers(uid,&room)
 
