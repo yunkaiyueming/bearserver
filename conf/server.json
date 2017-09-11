@@ -3,5 +3,6 @@
 	"LogPath": "",
 	"TCPAddr": "127.0.0.1:3563",
 	"WSAddr" : "127.0.0.1:3653",
-	"DBUrl": "root:@tcp(192.168.8.81:3307)/bear?charset=utf8"
+	"DBUrl": "root:@tcp(192.168.8.81:3307)/bear?charset=utf8",
+	"MaxConnNum": 1000
 }

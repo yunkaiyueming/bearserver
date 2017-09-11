@@ -1,8 +1,9 @@
 package internal
 
 import (
-	"github.com/name5566/leaf/gate"
 	"fmt"
+
+	"github.com/name5566/leaf/gate"
 )
 
 var ConnMap = make(map[gate.Agent]int)
@@ -17,12 +18,15 @@ func beatHeart() {
 
 func RegNewConn(a gate.Agent, uid int) {
 	ConnMap[a] = uid
-	//fmt.Println("v%\n",ConnMap)
-	for k, v := range ConnMap {
-		fmt.Println(k, v)
+	fmt.Printf("new conn==>%s \n", a.RemoteAddr().String())
+
+	fmt.Println("all conn list:")
+	for k, _ := range ConnMap {
+		fmt.Printf("%s \n", k.RemoteAddr().String())
 	}
 }
 
 func LeaveConn(a gate.Agent) {
+	fmt.Printf("remote conn leave: %s \n", a.RemoteAddr().String())
 	delete(ConnMap, a)
 }

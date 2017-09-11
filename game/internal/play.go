@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"bearserver/conf"
+
 	"github.com/name5566/leaf/log"
 )
 
@@ -44,11 +45,11 @@ func (p *PlayerModuel) draw(uid int, room *Room) bool {
 		newCard := append(room.UserState[uid].Cards, card)
 		room.UserState[uid] = PlayerState{Uid: uid, Cards: newCard, Name: room.UserState[uid].Name, Status: 0}
 		room.TurnTime = time.Now().Unix()
+
 		room.Turn += 1
 		if room.Turn > len(room.UserIds) {
 			room.Turn = 1
 		}
-
 	} else {
 		return false
 	}
@@ -149,8 +150,9 @@ func (p *PlayerModuel) StartPlay(room *Room) {
 				log.Debug("autoSendCard...")
 				p.AutoSelCard(room)
 			}
-		}else{
+		} else {
 			close(room.RecvCh)
+			break
 		}
 	}
 }

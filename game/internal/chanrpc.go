@@ -16,14 +16,7 @@ func init() { //与gate 进行"交流"
 }
 
 func rpcNewAgent(args []interface{}) {
-	fmt.Println("--rpcNew--", args)
 	a := args[0].(gate.Agent)
-	fmt.Println("args[0]:", a)
-	fmt.Println("len():", len(args))
-	for i := 0; i < len(args); i++ {
-		fmt.Printf("i=%d,arg[%d]=%v \n", i, i, args[i])
-	}
-
 	RegNewConn(a, 0)
 }
 
@@ -42,7 +35,7 @@ func rpcLoginAgent(args []interface{}) {
 	uid, err := login(m)
 	fmt.Println(uid)
 	if err != nil {
-		a.WriteMsg(&msg.CodeState{MSG_STATE: msg.MSG_Login_Error})
+		a.WriteMsg(&msg.CodeState{MSG_STATE: msg.MSG_Login_Error, Message: err.Error()})
 		return
 	}
 
@@ -50,8 +43,8 @@ func rpcLoginAgent(args []interface{}) {
 
 	//登录成功之后就开始加入房间
 	roomModuel := &RoomModule{}
-	room,_ := roomModuel.JoinRoom(uid)
-	a.WriteMsg(&msg.Response{Uid:uid,Cmd:"login",Ret:0,Data:room,Rnum:1})
+	room, _ := roomModuel.JoinRoom(uid)
+	a.WriteMsg(&msg.Response{Uid: uid, Cmd: "login", Ret: 0, Data: room, Rnum: 1})
 }
 
 func rpcRigesterAgent(args []interface{}) {
@@ -60,16 +53,15 @@ func rpcRigesterAgent(args []interface{}) {
 	m := args[1].(*msg.RegisterUserInfo)
 	ok := checkExitedUser(m.Name)
 	if ok {
-		response := &msg.Response{Cmd:"rigester",Rnum:1,Ret:-1}
+		response := &msg.Response{Cmd: "rigester", Rnum: 1, Ret: -1}
 		a.WriteMsg(response)
 		return
 	}
 
 	_, err := register(m)
 	if err == nil {
-		response := &msg.Response{Cmd:"rigester",Rnum:1,Ret:0}
+		response := &msg.Response{Cmd: "rigester", Rnum: 1, Ret: 0}
 		a.WriteMsg(response)
 		return
 	}
 }
-
