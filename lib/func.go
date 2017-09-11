@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/astaxie/beego/logs"
+	"reflect"
+	"errors"
 )
 
 func GetMsgByCode(code int) string {
@@ -13,21 +15,19 @@ func GetMsgByCode(code int) string {
 	return ""
 }
 
-func DelSlice(sourSliceInterface interface{}, start int, lenth int) []interface{} {
-	delSl, dstSl := make([]interface{}, 0), make([]interface{}, 0)
-
-	sourSlice := sourSliceInterface.([]interface{})
-	if start+lenth > len(sourSlice) {
-		delSl = sourSlice[start:len(sourSlice)]
-	} else {
-		delSl = sourSlice[start : start+lenth]
+//根据索引删除切片的值
+func DeleteSlice(slice interface{}, index int) (interface{}, error) {
+	sliceValue := reflect.ValueOf(slice)
+	length := sliceValue.Len()
+	if slice == nil || length == 0 || (length-1) < index {
+		return nil, errors.New("error")
 	}
-
-	copy(dstSl, sourSlice)
-	sourSlice = nil
-	sourSlice = dstSl[0:start]
-
-	return delSl
+	if length-1 == index {
+		return sliceValue.Slice(0, index).Interface(), nil
+	} else if (length - 1) >= index {
+		return reflect.AppendSlice(sliceValue.Slice(0, index), sliceValue.Slice(index+1, length)).Interface(), nil
+	}
+	return nil, errors.New("error")
 }
 
 func CreateCronJob(d time.Duration, f func() string, fNameInfo ...string) {
@@ -57,3 +57,5 @@ func CreateCronJob(d time.Duration, f func() string, fNameInfo ...string) {
 		}
 	}
 }
+
+
