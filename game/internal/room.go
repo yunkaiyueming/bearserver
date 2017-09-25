@@ -52,7 +52,6 @@ func (r *RoomModule) getRoomByUid(uid int) (Room, bool) {
 				}
 			}
 		}
-
 	}
 	return Room{}, false
 }
@@ -80,7 +79,6 @@ func (r *RoomModule) deleteRoom(roomId int) {
 			index = k
 			break
 		}
-
 	}
 
 	OnlineRooms = append(OnlineRooms[:index], OnlineRooms[index+1:]...)
@@ -120,28 +118,18 @@ func (r *RoomModule) JoinRoom(uid int) (interface{}, error) {
 
 	userModel := db.ModelUser{}
 	uInfo, _ := userModel.GetUserById(uid)
-
 	lastRoom.UserState[uid] = PlayerState{Uid: uid, Status: 0, Name: uInfo.Name}
 
-	//检查是否可以开始游戏
-
-	r.Start(lastRoom)
 	roomInfo, _ := r.getRoomInfo(uid, lastRoom.RoomID)
-	//给房间里面的其他人推送信息
-	for k, _ := range lastRoom.UserState {
-		if k != uid {
-			perroomInfo, _ := r.getRoomInfo(k, lastRoom.RoomID)
-			PushMsgModuel := PushMsgModuel{}
-			log.Debug("push...", k, perroomInfo)
-			PushMsgModuel.pushMsgByUid(k, perroomInfo)
-		}
-	}
+	r.pushRoomMsgToOthers(uid, lastRoom)
+
+	//自动检查是否可以开始游戏
+	go r.Start(lastRoom)
 	return roomInfo, nil
 }
 
 //给房间里面的其他人推送信息
 func (r *RoomModule) pushRoomMsgToOthers(uid int, room *Room) {
-	//给房间里面的其他人推送信息
 	for k, _ := range room.UserState {
 		if k != uid {
 			perroomInfo, _ := r.getRoomInfo(k, room.RoomID)
@@ -152,14 +140,15 @@ func (r *RoomModule) pushRoomMsgToOthers(uid int, room *Room) {
 	}
 }
 
+//给房间所有人推送信息
 func (r *RoomModule) pushSuccessToOthers(winerUid int, room *Room) {
-	//给房间里面的其他人推送信息
-	for peruid, _ := range room.UserState {
-		successMsg := make(map[string]int)
-		successMsg["winerUid"] = winerUid
-		successMsg["gameOver"] = 1
-		PushMsgModuel := PushMsgModuel{}
-		PushMsgModuel.pushMsgByUid(peruid, successMsg)
+	successMsg := map[string]int{
+		"winerUid": winerUid,
+		"gameOver": 1,
+	}
+	PushMsgModuel := PushMsgModuel{}
+	for _, uid := range room.UserIds {
+		PushMsgModuel.pushMsgByUid(uid, successMsg) //TODO：并发推送
 	}
 }
 
@@ -220,14 +209,6 @@ func (r *RoomModule) getRoomInfo(myUid int, roomId int) (interface{}, error) {
 		}
 		index++
 	}
-
-	//	for _, v := range room.UserState {
-	//		if v.Uid == uid {
-	//			myPos = index
-	//			resRoom.MyCards = v.Cards
-	//		}
-	//		index++
-	//	}
 
 	if room.State == PLAYING {
 		resRoom.MathcFlag = true

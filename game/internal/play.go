@@ -1,10 +1,13 @@
 package internal
 
 import (
+	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"bearserver/conf"
+	"bearserver/msg"
 
 	"github.com/name5566/leaf/log"
 )
@@ -12,6 +15,94 @@ import (
 type PlayerModuel struct{}
 
 var MaxBaseCardNum = len(conf.BaseCards)
+
+//处理客户端请求逻辑
+func (p *PlayerModuel) HandlePlayCard(args []interface{}) *msg.Response {
+	m := args[0].(*msg.Dispatch)
+	response := &msg.Response{Cmd: m.Cmd, Rnum: m.Rnum, Uid: m.Uid, Ret: 0}
+
+	if err := p.checkRoomMsg(m); err != nil {
+		response.Ret = -1
+		return response
+	}
+
+	uid := m.Uid
+	params := m.Params
+	mtype, ok := params["mtype"]
+	if !ok {
+		response.Ret = -3
+		return response
+	}
+
+	//mtype:1发牌 2摸牌
+	if mtype == "1" || mtype == "2" {
+		if mtype == "1" {
+			card, ok := params["card"]
+			log.Debug("cards...", card)
+			if !ok {
+				response.Ret = -3
+				return response
+			}
+		}
+	} else {
+		response.Ret = -3
+		return response
+	}
+	log.Debug("step22")
+
+	var card int
+	log.Debug("card...", int(card))
+
+	switch v := params["card"].(type) {
+	case int:
+		fmt.Println("整型", v)
+
+	case string:
+		fmt.Println("字符串", v)
+		cardInt, err := strconv.Atoi(v)
+		if err != nil {
+			panic(err)
+		}
+		card = cardInt
+	}
+
+	playerModuel := PlayerModuel{}
+	roomModuel := RoomModule{}
+	room, ok := roomModuel.getRoomByUid(uid)
+	if !ok {
+		response.Ret = -5
+		return response
+	}
+
+	log.Debug("step3...")
+	log.Debug("card...", card)
+
+	if mtype == "1" {
+		//发牌
+		playRet := playerModuel.discard(uid, card, &room)
+		if !playRet {
+			response.Ret = -6
+			return response
+		}
+	} else if mtype == "2" {
+		//摸牌
+		log.Debug("mtype2...", mtype)
+
+		playRet := playerModuel.draw(uid, &room)
+		if !playRet {
+			response.Ret = -5
+			return response
+		}
+	}
+	//这个房间收到消息，不会自动发牌
+	roomModuel.RecvRoomMsg(&room, params)
+	perroomInfo, _ := roomModuel.getRoomInfo(uid, room.RoomID)
+	roomModuel.pushRoomMsgToOthers(uid, &room)
+
+	response.Data = perroomInfo
+
+	return response
+}
 
 //洗牌
 func (p *PlayerModuel) initPlayerCards() []int {
@@ -157,6 +248,7 @@ func (p *PlayerModuel) StartPlay(room *Room) {
 	}
 }
 
+//检测超时
 func (p *PlayerModuel) PlayerSelTime(room *Room, retCh chan interface{}) {
 	for {
 		select {
@@ -205,4 +297,35 @@ func (p *PlayerModuel) AutoSelCard(room *Room) {
 
 	roomModuel := RoomModule{}
 	roomModuel.pushRoomMsgToOthers(0, room)
+}
+
+//检查房间消息正确性
+func (p *PlayerModuel) checkRoomMsg(msg *msg.Dispatch) error {
+	//判断参数
+	uid := msg.Uid
+	params := msg.Params
+	if _, ok := params["mtype"]; !ok {
+		return errors.New("param mtype is not exist")
+	}
+
+	//判断该用户是否有出牌权
+	roomModuel := RoomModule{}
+	room, ok := roomModuel.getRoomByUid(uid)
+	if !ok {
+
+	}
+
+	selectTurn := 0
+	for _, roomUserId := range room.UserIds {
+		if roomUserId == uid {
+			selectTurn++
+			break
+		}
+	}
+
+	if selectTurn != room.Turn {
+		return errors.New("the user have no such privace")
+	}
+
+	return nil
 }

@@ -1,11 +1,12 @@
 package internal
 
 import (
-	"bearserver/msg"
+	"fmt"
 	"reflect"
 
+	"bearserver/msg"
+
 	"github.com/name5566/leaf/gate"
-	"fmt"
 )
 
 func init() {
@@ -20,25 +21,31 @@ func handleDispatch(args []interface{}) {
 	m := args[0].(*msg.Dispatch)
 	a := args[1].(gate.Agent)
 	method := m.Cmd
-	//这里以后会处理相应的参数要求逻辑
 
+	before()
 	var response *msg.Response
 	switch method {
 	case "hello":
 		response = handleHello(args)
 	case "playCard":
-		response = handlePlayCard(args)
+		response = (&PlayerModuel{}).HandlePlayCard(args)
 
 	case "pushMsg":
 		//response = handlePushMsg(args)
 
-
 	default:
 		response.Cmd = method
+		fmt.Println("api method not found")
 	}
 
-	fmt.Println("++++++++")
-	fmt.Println(ConnMap)
-
+	after()
 	a.WriteMsg(response)
+}
+
+func before() {
+
+}
+
+func after() {
+
 }

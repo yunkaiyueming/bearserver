@@ -1,14 +1,14 @@
 package internal
 
 import (
-	"bearserver/msg"
 	"fmt"
 
+	"bearserver/msg"
+
 	"github.com/name5566/leaf/gate"
-	//"github.com/name5566/leaf/log"
 )
 
-func init() { //与gate 进行"交流"
+func init() {
 	skeleton.RegisterChanRPC("NewAgent", rpcNewAgent)
 	skeleton.RegisterChanRPC("CloseAgent", rpcCloseAgent)
 	skeleton.RegisterChanRPC("LoginAgent", rpcLoginAgent)
@@ -26,16 +26,13 @@ func rpcCloseAgent(args []interface{}) {
 }
 
 func rpcLoginAgent(args []interface{}) {
-	fmt.Println("-rpclon-:", args)
-
+	fmt.Println("login start---")
 	a := args[0].(gate.Agent)
 	m := args[1].(*msg.UserLoginInfo)
-	fmt.Println("=======")
-	fmt.Println(m)
-	uid, err := login(m)
-	fmt.Println(uid)
+
+	uid, err := (&UserModule{}).Login(m)
 	if err != nil {
-		a.WriteMsg(&msg.CodeState{MSG_STATE: msg.MSG_Login_Error, Message: err.Error()})
+		a.WriteMsg(&msg.Response{Cmd: "login", Ret: msg.MSG_Login_Error, Data: err.Error(), Rnum: 1})
 		return
 	}
 
@@ -48,20 +45,24 @@ func rpcLoginAgent(args []interface{}) {
 }
 
 func rpcRigesterAgent(args []interface{}) {
-	fmt.Println("resiter---")
+	fmt.Println("resiter start---")
+
 	a := args[0].(gate.Agent)
 	m := args[1].(*msg.RegisterUserInfo)
-	ok := checkExitedUser(m.Name)
+	ok := (&UserModule{}).CheckExitedUser(m.Name)
+	response := &msg.Response{}
 	if ok {
-		response := &msg.Response{Cmd: "rigester", Rnum: 1, Ret: -1}
+		response = &msg.Response{Cmd: "register", Rnum: 1, Ret: -1, Data: "uname is exist"}
 		a.WriteMsg(response)
 		return
 	}
 
-	_, err := register(m)
-	if err == nil {
-		response := &msg.Response{Cmd: "rigester", Rnum: 1, Ret: 0}
-		a.WriteMsg(response)
-		return
+	_, err := (&UserModule{}).Register(m)
+	if err != nil {
+		response = &msg.Response{Cmd: "rigester", Rnum: 1, Ret: -1, Data: err.Error()}
+	} else {
+		response = &msg.Response{Cmd: "rigester", Rnum: 1, Ret: 0}
 	}
+
+	a.WriteMsg(response)
 }

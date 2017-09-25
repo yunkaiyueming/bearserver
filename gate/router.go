@@ -10,7 +10,7 @@ import (
 func init() {
 	//处理游戏逻辑
 	msg.Processor.SetRouter(&msg.Dispatch{}, game.ChanRPC)
-	//用注册
+	//注册
 	msg.Processor.SetRouter(&msg.RegisterUserInfo{}, login.ChanRPC)
 	//登录
 	msg.Processor.SetRouter(&msg.UserLoginInfo{}, login.ChanRPC)
